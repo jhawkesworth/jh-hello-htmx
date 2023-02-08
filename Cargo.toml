@@ -1,0 +1,12 @@
+[package]
+name = "jh-hello-htmx"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+
+[dependencies]
+shuttle-service = { version = "0.9.0", features = ["web-rocket"] }
+rocket = "0.5.0-rc.2"
+shuttle-static-folder = "0.9.0"
