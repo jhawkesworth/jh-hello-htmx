@@ -8,7 +8,7 @@ use rocket_dyn_templates::context;
 use rocket::response::Redirect;
 use rocket::Request;
 
-use rocket::fs::{FileServer, relative};
+use rocket::fs::{FileServer};
 
 #[get("/")]
 fn index() -> Redirect {
@@ -46,11 +46,13 @@ pub fn not_found(req: &Request<'_>) -> Template {
 
 #[shuttle_service::main]
 //async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] _static_folder: PathBuf) -> shuttle_service::ShuttleRocket {
-async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] _static_folder: PathBuf) -> Result<Rocket<Build>, shuttle_service::Error> {
+async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] static_folder: PathBuf) -> Result<Rocket<Build>, shuttle_service::Error> {
+    let mut static_subdir = static_folder.clone();
+        static_subdir.push("static");
     let rocket = rocket::build()
         .mount("/", routes![index, hello, button_clicked, a_clicked])
-        .mount("/static", FileServer::from(relative!("templates/static")))
-        .mount("/hello/static", FileServer::from(relative!("templates/static")))
+        .mount("/static", FileServer::from(&static_subdir))
+        .mount("/hello/static", FileServer::from(&static_subdir))
         .register("/", catchers![not_found])
         .attach(Template::fairing())
         ;
