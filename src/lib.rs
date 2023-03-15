@@ -1,19 +1,23 @@
 #[macro_use]
 extern crate rocket;
-
 use std::path::PathBuf;
 use rocket::{Build, Rocket};
 use rocket_dyn_templates::Template;
 use rocket_dyn_templates::context;
 use rocket::response::Redirect;
 use rocket::Request;
-
 use rocket::fs::{FileServer};
 
 #[get("/")]
 fn index() -> Redirect {
     Redirect::to(uri!("/", hello(name = "Your Name")))
 }
+
+#[get("/favicon.ico")]
+fn favicon() -> Redirect {
+    Redirect::to(uri!("/static/static/favicon.ico"))
+}
+
 
 #[get("/hello/<name>")]
 pub fn hello(name: &str) -> Template {
@@ -47,12 +51,14 @@ pub fn not_found(req: &Request<'_>) -> Template {
 #[shuttle_service::main]
 //async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] _static_folder: PathBuf) -> shuttle_service::ShuttleRocket {
 async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] static_folder: PathBuf) -> Result<Rocket<Build>, shuttle_service::Error> {
-    let mut static_subdir = static_folder.clone();
-        static_subdir.push("static");
+    let static_path = static_folder.as_path();
+    //    static_subdir.push("static");
     let rocket = rocket::build()
-        .mount("/", routes![index, hello, button_clicked, a_clicked])
-        .mount("/static", FileServer::from(&static_subdir))
-        .mount("/hello/static", FileServer::from(&static_subdir))
+        .mount("/", routes![index, hello, button_clicked, a_clicked, favicon])
+        .mount("/static", FileServer::from(static_path) )
+        //.mount("/hello/static", FileServer::from(relative!("templates")) )
+        // .mount("/static", FileServer::from(relative!(&static_subdir)) )
+        // .mount("/hello/static", FileServer::from(relative!(&static_subdir)) )
         .register("/", catchers![not_found])
         .attach(Template::fairing())
         ;
