@@ -48,9 +48,9 @@ pub fn not_found(req: &Request<'_>) -> Template {
     })
 }
 
-#[shuttle_service::main]
+#[shuttle_runtime::main]
 //async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] _static_folder: PathBuf) -> shuttle_service::ShuttleRocket {
-async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] static_folder: PathBuf) -> Result<Rocket<Build>, shuttle_service::Error> {
+async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] static_folder: PathBuf) ->  shuttle_rocket::ShuttleRocket {
     let static_path = static_folder.as_path();
     //    static_subdir.push("static");
     let rocket = rocket::build()
@@ -63,5 +63,5 @@ async fn rocket(#[shuttle_static_folder::StaticFolder(folder = "templates")] sta
         .attach(Template::fairing())
         ;
 
-    Ok(rocket)
+    Ok(rocket.into())
 }
