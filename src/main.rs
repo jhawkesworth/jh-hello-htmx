@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate rocket;
 use std::path::PathBuf;
-use rocket::{Build, Rocket};
 use rocket_dyn_templates::Template;
 use rocket_dyn_templates::context;
 use rocket::response::Redirect;
