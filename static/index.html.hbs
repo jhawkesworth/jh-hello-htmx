@@ -1,12 +1,25 @@
 <!DOCTYPE html>
-<body>
+<body id="bod">
 <script src="/static/htmx.min.js"></script>
+
+<section id="edit_todo">
+{{#each items}}
+    <div hx-target="this" hx-swap="outerHTML">
+        <div><label>Thing to do</label>: {{ this.note }}
+        <button hx-get="/todos/{{ this.id }}/edit" class="btn btn-primary">
+            Click To Edit
+        </button>
+        </div>
+    </div>
+{{/each}}
+</section>
+
 <section id="hello">
     <h1>Hi {{ name }}!</h1>
-    <h3>Here are your items:</h3>
+    <h3>Here are your to do items:</h3>
     <ul>
         {{#each items}}
-            <li>{{ this }}</li>
+            <li>{{ this.note }}</li>
         {{/each}}
     </ul>
 </section>
@@ -22,6 +35,16 @@
         Click Me
     </button>
 
+</section>
+
+<section id="add-item">
+    <form id="add" action="/todos" method="post">
+    <div>
+        <label>Thing to do</label>
+        <input type="text" name="note">
+        <button class="btn">Submit</button>
+    </div>
+    </form>
 </section>
 
 </body>

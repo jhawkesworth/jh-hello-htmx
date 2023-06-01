@@ -1,0 +1,11 @@
+<form hx-put="/todos/{{ item.id }}" hx-target="this" hx-swap="outerHTML">
+    <div><label>Thing to do</label>
+        <input type="text" name="note" value="{{ item.note }}">
+        <input type="hidden" name="id" value="{{ item.id }}">
+
+    <button class="btn btn-primary">Submit</button>
+    <button hx-get="/todos/{{ item.id }}" class="btn ">
+        Cancel
+    </button>
+    </div>
+</form>
