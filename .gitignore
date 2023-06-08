@@ -1,7 +1,8 @@
 /target
 /Cargo.lock
 /.idea
-
+Secrets.toml
+Secrets.dev.toml
 # Added by cargo
 #
 # already existing elements were commented out

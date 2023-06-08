@@ -11,10 +11,12 @@ use rocket::fs::{FileServer, relative};
 use rocket::serde::Serialize;
 use rocket::State;
 use rocket::form::Form;
+use std::env;
 
 use sqlx::{Executor, FromRow, PgPool};
 
 use shuttle_runtime::CustomError;
+use shuttle_secrets::SecretStore;
 
 struct MyState {
     pool: PgPool,
@@ -137,8 +139,16 @@ pub fn not_found(req: &Request<'_>) -> Template {
 }
 
 #[shuttle_runtime::main]
-async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool, #[shuttle_static_folder::StaticFolder] static_folder: PathBuf) -> shuttle_rocket::ShuttleRocket {
+async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool,
+                #[shuttle_static_folder::StaticFolder] static_folder: PathBuf,
+                #[shuttle_secrets::Secrets] secret_store: SecretStore) -> shuttle_rocket::ShuttleRocket {
 
+    let db_url = if let Some(db_url) = secret_store.get("DATABASE_URL") {
+        db_url
+    } else {
+        "postgres://postgres:postgres@localhost:17209/postgres".to_string()
+    };
+    std::env::set_var("DATABASE_URL", db_url);
     pool.execute(include_str!("../schema.sql"))
         .await
         .map_err(CustomError::new)?;
