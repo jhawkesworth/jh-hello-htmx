@@ -50,9 +50,10 @@ async fn retrieve_todos_page(state: &State<MyState>) -> Template {
 }
 
 #[post("/todos", data = "<data>")]
-async fn add(data: Form<TodoNew>, state: &State<MyState>) -> Redirect {
+async fn add(data: Form<TodoNew>, state: &State<MyState>) -> Template {
+    let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
     let note = &data.note;
-    let _todo = sqlx::query_as!(TodoNew,
+    let _todo_new = sqlx::query_as!(TodoNew,
         "INSERT INTO todos(note) VALUES ($1) RETURNING note",
         note.as_str())
         // .bind(note.as_str())
@@ -60,8 +61,14 @@ async fn add(data: Form<TodoNew>, state: &State<MyState>) -> Redirect {
         .await.unwrap_or(TodoNew {note: "oh we failed".to_string()});
     // it is possible above insert should be written using 'execute' isntead of 'fetch_one'
     // TODO work out what htmx failure pattern should be.
+    Template::render("todo-edit-add", context! {
+        title: "Todo List",
+        items: sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+        .fetch_all(&state.pool)
+        .await.
+        unwrap_or(vec![default_todo]),
+    })
 
-    Redirect::to(uri!("/todos"))
 }
 
 #[get("/todos/<id>/edit")]
