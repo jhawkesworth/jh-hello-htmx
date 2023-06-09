@@ -28,8 +28,6 @@ struct Todo {
     pub note: String,
 }
 
-
-
 #[derive(FromForm)]
 struct TodoNew{
     pub note: String,
@@ -42,9 +40,8 @@ async fn retrieve_todos_page(state: &State<MyState>) -> Template {
     //     .fetch_all(&state.pool)
     //     .await.
     //     unwrap_or(vec![default_todo]);
-    Template::render("index", context! {
+    Template::render("todo", context! {
         title: "Todo List",
-        name: Some("Not used at the moment"),
         items: sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
         .fetch_all(&state.pool)
         .await.
@@ -97,7 +94,7 @@ async fn put_todo(data: Form<Todo>, id: i32, state: &State<MyState>) -> Template
 
 #[get("/")]
 fn index() -> Redirect {
-    Redirect::to(uri!("/", hello(name = "Your Name")))
+    Redirect::to(uri!("/todos"))
 }
 
 #[get("/favicon.ico")]
@@ -105,31 +102,6 @@ fn favicon() -> Redirect {
     Redirect::to(uri!("/static/static/favicon.ico"))
 }
 
-
-#[get("/hello/<name>")]
-pub fn hello(name: &str) -> Template {
-    Template::render("index", context! {
-        title: "Hello",
-        name: Some(name),
-        items: vec!["One", "Two", "Three"],
-    })
-}
-
-
-
-#[post("/clicked")]
-pub fn button_clicked() -> Template {
-    Template::render("no_button", context! {
-        message: "You Replaced the Button"
-    })
-}
-
-#[post("/button")]
-pub fn a_clicked() -> Template {
-    Template::render("button", context! {
-        message: "You Got the button back"
-    })
-}
 
 #[catch(404)]
 pub fn not_found(req: &Request<'_>) -> Template {
@@ -158,7 +130,8 @@ async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool,
     let template_dir = static_folder.to_str().unwrap();
     let figment = rocket::Config::figment().merge(("template_dir", template_dir));
     let rocket = rocket::custom(figment)
-        .mount("/", routes![index, hello, button_clicked, a_clicked, favicon,
+        .mount("/", routes![index,
+            favicon,
             retrieve_todos_page, add, edit_todo_form, put_todo])
         .mount("/static", FileServer::from(relative!("static")))
         .register("/", catchers![not_found])
