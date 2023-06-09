@@ -3,6 +3,7 @@
 <script src="/static/htmx.min.js"></script>
 
 <section id="edit_todo">
+    <h1>To do list</h1>
 {{#each items}}
     <div hx-target="this" hx-swap="outerHTML">
         <div><label>Thing to do</label>: {{ this.note }}
@@ -15,14 +16,18 @@
 </section>
 
 <section id="add-item">
+    <h1>Add item</h1>
     <form id="add" action="/todos" method="post">
     <div>
-        <label>Thing to do</label>
+        <label>New thing to do</label>
         <input type="text" name="note">
         <button class="btn">Submit</button>
     </div>
     </form>
 </section>
-
+<details>
+    <summary>Help</summary>
+    <p>This page shows your to do list items.  You can add new things to do at the bottom of the page.</p>
+</details>
 </body>
 {{> layout}}
