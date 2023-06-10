@@ -34,39 +34,38 @@ struct TodoNew{
 }
 
 #[get("/todos")]
-async fn retrieve_todos_page(state: &State<MyState>) -> Template {
+async fn get_todo_list(state: &State<MyState>) -> Template {
     let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
-    // let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
-    //     .fetch_all(&state.pool)
-    //     .await.
-    //     unwrap_or(vec![default_todo]);
-    Template::render("todo", context! {
-        title: "Todo List",
-        items: sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
         .fetch_all(&state.pool)
         .await.
-        unwrap_or(vec![default_todo]),
+        unwrap_or(vec![default_todo]);
+    Template::render("todo", context! {
+        title: "Todo List",
+        items: items,
     })
 }
 
 #[post("/todos", data = "<data>")]
-async fn add(data: Form<TodoNew>, state: &State<MyState>) -> Template {
+async fn add_todo(data: Form<TodoNew>, state: &State<MyState>) -> Template {
     let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
     let note = &data.note;
     let _todo_new = sqlx::query_as!(TodoNew,
         "INSERT INTO todos(note) VALUES ($1) RETURNING note",
         note.as_str())
-        // .bind(note.as_str())
         .fetch_one(&state.pool)
         .await.unwrap_or(TodoNew {note: "oh we failed".to_string()});
     // it is possible above insert should be written using 'execute' isntead of 'fetch_one'
     // TODO work out what htmx failure pattern should be.
-    Template::render("todo-edit-add", context! {
-        title: "Todo List",
-        items: sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+
+    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
         .fetch_all(&state.pool)
         .await.
-        unwrap_or(vec![default_todo]),
+        unwrap_or(vec![default_todo]);
+
+    Template::render("todo-edit-add", context! {
+        title: "Todo List",
+        items: items,
     })
 
 }
@@ -83,8 +82,9 @@ async fn edit_todo_form(id: i32, state: &State<MyState>) -> Template {
         item: item
     })
 }
+
 #[put("/todos/<id>", data = "<data>")]
-async fn put_todo(data: Form<Todo>, id: i32, state: &State<MyState>) -> Template {
+async fn update_todo(data: Form<Todo>, id: i32, state: &State<MyState>) -> Template {
     // TODO a boat load in tests regarding input.
     let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
     let item = sqlx::query_as!(Todo, "update TODOS set note=($1) where id= ($2) returning *", data.note, id)
@@ -98,7 +98,27 @@ async fn put_todo(data: Form<Todo>, id: i32, state: &State<MyState>) -> Template
     })
 }
 
+#[delete("/todos/<id>")]
+async fn delete_todo(id: i32, state: &State<MyState>) -> Template {
+    let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
+    let _result = sqlx::query!("DELETE from todos where id= ($1)", id)
+        .execute(&state.pool)
+        .await;
 
+    // TODO check the delete result and log success or failure?
+    // either way want to refresh the list.
+    // TODO work out what htmx failure pattern should be.
+    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+        .fetch_all(&state.pool)
+        .await.
+        unwrap_or(vec![default_todo]);
+
+    Template::render("todo-edit-add", context! {
+        title: "Todo List",
+        items: items,
+    })
+
+}
 #[get("/")]
 fn index() -> Redirect {
     Redirect::to(uri!("/todos"))
@@ -139,7 +159,7 @@ async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool,
     let rocket = rocket::custom(figment)
         .mount("/", routes![index,
             favicon,
-            retrieve_todos_page, add, edit_todo_form, put_todo])
+            get_todo_list, add_todo, edit_todo_form, update_todo, delete_todo])
         .mount("/static", FileServer::from(relative!("static")))
         .register("/", catchers![not_found])
         .attach(Template::fairing())
