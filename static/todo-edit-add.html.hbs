@@ -7,7 +7,7 @@
                     <button hx-get="/todos/{{ this.id }}/edit" class="btn btn-primary">
                         Click To Edit
                     </button>
-                    <button hx-delete="/todos/{{ this.id }}" hx-target="#todo_edit_add">Delete</button>
+                    <button hx-delete="/todos/{{ this.id }}" hx-target="#todo_edit_add" hx-confirm="Please confirm you want to delete (there is no Undo)">Delete</button>
                 </div>
             </div>
         {{/each}}
