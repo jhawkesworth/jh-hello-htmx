@@ -18,6 +18,8 @@ use sqlx::{Executor, FromRow, PgPool};
 use shuttle_runtime::CustomError;
 use shuttle_secrets::SecretStore;
 
+use rustrict::CensorStr;
+
 struct MyState {
     pool: PgPool,
 }
@@ -48,13 +50,22 @@ async fn get_todo_list(state: &State<MyState>) -> Template {
 
 #[post("/todos", data = "<data>")]
 async fn add_todo(data: Form<TodoNew>, state: &State<MyState>) -> Template {
-    let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
+    let default_todo = Todo { id: -1_i32, note: "Add some things to do!".to_string() };
     let note = &data.note;
+
+    let mut status = "Added..";
+
+    if note.is_inappropriate() {
+        status = "Use appropriate language and try again"
+    } else {
+
     let _todo_new = sqlx::query_as!(TodoNew,
         "INSERT INTO todos(note) VALUES ($1) RETURNING note",
         note.as_str())
         .fetch_one(&state.pool)
-        .await.unwrap_or(TodoNew {note: "oh we failed".to_string()});
+        .await.unwrap_or(TodoNew { note: "oh we failed".to_string() });
+    }
+
     // it is possible above insert should be written using 'execute' isntead of 'fetch_one'
     // TODO work out what htmx failure pattern should be.
 
@@ -64,6 +75,7 @@ async fn add_todo(data: Form<TodoNew>, state: &State<MyState>) -> Template {
         unwrap_or(vec![default_todo]);
 
     Template::render("todo-edit-add", context! {
+        status: status,
         title: "Todo List",
         items: items,
     })
