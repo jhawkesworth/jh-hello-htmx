@@ -1,4 +1,5 @@
 <div id="todo_edit_add">
+    <div id="status"><p>{{ this.status }}</p></div>
     <section id="edit_todo">
         <h1>To do list</h1>
         {{#each items}}
@@ -12,15 +13,15 @@
             </div>
         {{/each}}
     </section>
-
+<br/>
     <section id="add-item">
-        <h1>Add item</h1>
         <form id="add" hx-post="/todos" hx-target="#todo_edit_add">
-            <div>
+            <fieldset>
+                <legend>Add new todo item</legend>
                 <label>New thing to do</label>
                 <input type="text" name="note">
                 <button class="btn">Submit</button>
-            </div>
+            </fieldset>
         </form>
     </section>
 </div>
