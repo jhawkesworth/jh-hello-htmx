@@ -1,7 +1,7 @@
 <div id="todo_edit_add">
     <div id="status"><p>{{ this.status }}</p></div>
     <section id="edit_todo">
-            <h1>To do list</h1>
+            <h3>(Up to) Ten Things to do</h3>
         {{#each items}}
             <div hx-target="this" hx-swap="outerHTML">
                 <div><label>Thing to do</label>: {{ this.note }}
