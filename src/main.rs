@@ -57,8 +57,9 @@ async fn add_todo(data: Form<TodoNew>, state: &State<MyState>) -> Template {
 
     if note.is_inappropriate() {
         status = "Use appropriate language and try again"
+    } else if note.is_empty() {
+        status = "Nothing to add"
     } else {
-
     let _todo_new = sqlx::query_as!(TodoNew,
         "INSERT INTO todos(note) VALUES ($1) RETURNING note",
         note.as_str())
@@ -99,14 +100,20 @@ async fn edit_todo_form(id: i32, state: &State<MyState>) -> Template {
 async fn update_todo(data: Form<Todo>, id: i32, state: &State<MyState>) -> Template {
     // TODO a boat load in tests regarding input.
     let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
-    let item = sqlx::query_as!(Todo, "update TODOS set note=($1) where id= ($2) returning *", data.note, id)
+    let _item = sqlx::query_as!(Todo, "update TODOS set note=($1) where id= ($2) returning *", data.note, id)
         .fetch_one(&state.pool)
         .await.
         unwrap_or(default_todo);
 
-    Template::render("saved_todo", context! {
-        title: "Saved todo",
-        item: item
+    // TODO check update was good
+    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+        .fetch_all(&state.pool)
+        .await.
+        unwrap_or(vec![Todo{ id: -1_i32,  note: "Add some things to do!".to_string() }]);
+
+    Template::render("todo-edit-add", context! {
+        title: "Todo List",
+        items: items,
     })
 }
 

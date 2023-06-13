@@ -1,10 +1,10 @@
-<form hx-put="/todos/{{ item.id }}" hx-target="this" hx-swap="outerHTML">
+<form hx-put="/todos/{{ item.id }}" hx-target="#todo_edit_add" hx-swap="outerHTML">
     <div><label>Thing to do</label>
-        <input type="text" name="note" value="{{ item.note }}">
+        <input autofocus type="text" name="note" value="{{ item.note }}">
         <input type="hidden" name="id" value="{{ item.id }}">
 
     <button class="btn btn-primary">Submit</button>
-    <button hx-get="/todos/{{ item.id }}" class="btn ">
+    <button hx-get="/todos/" class="btn" hx-target="#bod" hx-swap="innerHTML">
         Cancel
     </button>
     </div>

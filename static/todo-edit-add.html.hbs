@@ -1,14 +1,14 @@
 <div id="todo_edit_add">
     <div id="status"><p>{{ this.status }}</p></div>
     <section id="edit_todo">
-        <h1>To do list</h1>
+            <h1>To do list</h1>
         {{#each items}}
             <div hx-target="this" hx-swap="outerHTML">
                 <div><label>Thing to do</label>: {{ this.note }}
-                    <button hx-get="/todos/{{ this.id }}/edit" class="btn btn-primary">
-                        Click To Edit
+                    <button hx-get="/todos/{{ this.id }}/edit" hx-trigger="click, keyup[altKey&&ctrlKey&&code=='Digit{{@index}}'] from:body" class="btn btn-primary">
+                        Edit (Ctrl-Alt-{{@index}})
                     </button>
-                    <button hx-delete="/todos/{{ this.id }}" hx-target="#todo_edit_add" hx-confirm="Please confirm you want to delete (there is no Undo)">Delete</button>
+                    <button hx-delete="/todos/{{ this.id }}" hx-target="#todo_edit_add" hx-trigger="click, keyup[shiftKey&&code=='Digit{{@index}}'] from:body" hx-confirm="Please confirm you want to delete todo item {{@index}} (there is no Undo)">Delete (Shift-{{@index}})</button>
                 </div>
             </div>
         {{/each}}
@@ -18,8 +18,9 @@
         <form id="add" hx-post="/todos" hx-target="#todo_edit_add">
             <fieldset>
                 <legend>Add new todo item</legend>
-                <label>New thing to do</label>
-                <input type="text" name="note">
+                <label>New thing to do (Alt-Shift-N):</label>
+                <input type="text" name="note" accesskey="N">
+<!--                <button class="btn" hx-trigger="click, keyup[shiftKey&&AltKey&&code=='Enter'] from:body">Submit (Alt-Shift-Enter)</button>-->
                 <button class="btn">Submit</button>
             </fieldset>
         </form>

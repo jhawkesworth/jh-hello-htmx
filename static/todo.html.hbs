@@ -1,12 +1,27 @@
 <!DOCTYPE html>
 <body id="bod">
 <script src="/static/htmx.min.js"></script>
-
+<section>
+    <title>Do ten things</title>
+</section>
 {{ > todo-edit-add }}
 <br/>
 <details>
-    <summary>Click here to show or hide help</summary>
-    <p>This page shows your to do list items.  You can add new things to do at the bottom of the page.</p>
+    <summary accesskey="h">Click here to show or hide help (Alt-H, Alt-Shift-H, Ctrl+Alt-H)</summary>
+    <p>This page shows your to do list items.  You can add new things to do at the bottom of the page.
+    <b>A maximum of ten to do list items are shown.</b>
+    The only way to see if you have more than 10 things is to get something done that you can see and delete it.</p>
+    <section>
+        <h3>Keyboard shortcuts</h3>
+        <p><em>Access key</em> is different on different computers and browsers.  From most likely to least likely it may be: Alt, Alt+Shift or Ctrl+Alt (Mac).</p>
+        <ol>
+            <li>Toggle Help: <em>Access Key</em> + H</li>
+            <li>Add a new todo item: <em>Access Key</em> + N</li>
+            <li>Edit todo item: Ctrl-Alt + 0-9</li>
+            <li>Delete todo item: Shift + 0-9</li>
+        </ol>
+    </section>
+
 </details>
 </body>
 {{> layout}}
