@@ -12,6 +12,8 @@ rocket_dyn_templates = { version = "0.1.0-rc.2", features = ["handlebars"] }
 sqlx = { version = "0.6.2", features = ["runtime-tokio-native-tls", "postgres", "offline"] }
 # note to self may need serde 1.0.148 and rocket might need features = ["json"]
 serde = "1.0.148"
+# profanity filter
+rustrict = "0.7.7"
 
 # below is all the shuttle stuff that replaces infrastructure.
 shuttle-rocket = "0.18.0"
@@ -19,4 +21,5 @@ shuttle-runtime = "0.18.0"
 shuttle-static-folder = "0.18.0"
 shuttle-secrets = "0.18.0"
 shuttle-shared-db = { version = "0.18.0", features = ["postgres"]}
-rustrict = "0.7.7"
+
+
