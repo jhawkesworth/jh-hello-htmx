@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate rocket;
+
 use std::path::PathBuf;
 
 use rocket_dyn_templates::Template;
@@ -12,11 +13,13 @@ use rocket::serde::Serialize;
 use rocket::State;
 use rocket::form::Form;
 use std::env;
+use std::string::ToString;
 
 use sqlx::{Executor, FromRow, PgPool};
 
 use shuttle_runtime::CustomError;
 use shuttle_secrets::SecretStore;
+
 
 use rustrict::CensorStr;
 
@@ -27,6 +30,8 @@ struct MyState {
 #[derive(FromRow, Serialize, FromForm)]
 struct Todo {
     pub id: i32,
+    // #[field(default=false)]
+    // pub done: bool,
     pub note: String,
 }
 
@@ -35,13 +40,26 @@ struct TodoNew{
     pub note: String,
 }
 
+const DEFAULT_TODO: Todo = Todo {
+    id: -1_i32,
+    // created: DateTime::now_utc(),
+    // done: false,
+    note: String::new()
+};
+
 #[get("/todos")]
 async fn get_todo_list(state: &State<MyState>) -> Template {
-    let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
-    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+    // forget old things, but not the first 10 things.
+    let mut transaction = state.pool.begin().await.unwrap();
+    let _result = sqlx::query!("delete from TODOS where created < now() - interval '1.5' day and id not in (select id from todos order by id asc limit 10)")
+        .execute(&mut transaction)
+        .await;
+    transaction.commit().await.unwrap();
+
+    let items = sqlx::query_as!(Todo, "SELECT id, note from todos order by id asc LIMIT 10")
         .fetch_all(&state.pool)
         .await.
-        unwrap_or(vec![default_todo]);
+        unwrap_or(vec![DEFAULT_TODO]);
     Template::render("todo", context! {
         title: "Todo List",
         items: items,
@@ -50,7 +68,6 @@ async fn get_todo_list(state: &State<MyState>) -> Template {
 
 #[post("/todos", data = "<data>")]
 async fn add_todo(data: Form<TodoNew>, state: &State<MyState>) -> Template {
-    let default_todo = Todo { id: -1_i32, note: "Add some things to do!".to_string() };
     let note = &data.note;
 
     let mut status = "Added..";
@@ -67,13 +84,13 @@ async fn add_todo(data: Form<TodoNew>, state: &State<MyState>) -> Template {
         .await.unwrap_or(TodoNew { note: "oh we failed".to_string() });
     }
 
-    // it is possible above insert should be written using 'execute' isntead of 'fetch_one'
+    // it is possible above insert should be written using 'execute' instead of 'fetch_one'
     // TODO work out what htmx failure pattern should be.
 
-    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+    let items = sqlx::query_as!(Todo, "SELECT id, note from todos order by id asc LIMIT 10")
         .fetch_all(&state.pool)
         .await.
-        unwrap_or(vec![default_todo]);
+        unwrap_or(vec![DEFAULT_TODO]);
 
     Template::render("todo-edit-add", context! {
         status: status,
@@ -85,11 +102,10 @@ async fn add_todo(data: Form<TodoNew>, state: &State<MyState>) -> Template {
 
 #[get("/todos/<id>/edit")]
 async fn edit_todo_form(id: i32, state: &State<MyState>) -> Template {
-    let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
-    let item = sqlx::query_as!(Todo, "SELECT * from todos where id= ($1)", id)
+    let item = sqlx::query_as!(Todo, "SELECT id, note from todos where id= ($1)", id)
         .fetch_one(&state.pool)
         .await.
-        unwrap_or(default_todo);
+        unwrap_or(DEFAULT_TODO);
     Template::render("edit_todo", context! {
         title: "Edit todo",
         item: item
@@ -99,17 +115,16 @@ async fn edit_todo_form(id: i32, state: &State<MyState>) -> Template {
 #[put("/todos/<id>", data = "<data>")]
 async fn update_todo(data: Form<Todo>, id: i32, state: &State<MyState>) -> Template {
     // TODO a boat load in tests regarding input.
-    let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
-    let _item = sqlx::query_as!(Todo, "update TODOS set note=($1) where id= ($2) returning *", data.note, id)
+    let _item = sqlx::query_as!(Todo, "update TODOS set note=($1) where id= ($2) returning id, note", data.note, id)
         .fetch_one(&state.pool)
         .await.
-        unwrap_or(default_todo);
+        unwrap_or(DEFAULT_TODO);
 
     // TODO check update was good
-    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+    let items = sqlx::query_as!(Todo, "SELECT id, note from todos order by id asc LIMIT 10")
         .fetch_all(&state.pool)
         .await.
-        unwrap_or(vec![Todo{ id: -1_i32,  note: "Add some things to do!".to_string() }]);
+        unwrap_or(vec![DEFAULT_TODO]);
 
     Template::render("todo-edit-add", context! {
         title: "Todo List",
@@ -119,7 +134,6 @@ async fn update_todo(data: Form<Todo>, id: i32, state: &State<MyState>) -> Templ
 
 #[delete("/todos/<id>")]
 async fn delete_todo(id: i32, state: &State<MyState>) -> Template {
-    let default_todo = Todo{ id: -1_i32,  note: "Add some things to do!".to_string() };
     let _result = sqlx::query!("DELETE from todos where id= ($1)", id)
         .execute(&state.pool)
         .await;
@@ -127,10 +141,10 @@ async fn delete_todo(id: i32, state: &State<MyState>) -> Template {
     // TODO check the delete result and log success or failure?
     // either way want to refresh the list.
     // TODO work out what htmx failure pattern should be.
-    let items = sqlx::query_as!(Todo, "SELECT * from todos LIMIT 10")
+    let items = sqlx::query_as!(Todo, "SELECT id, note from todos order by id asc LIMIT 10")
         .fetch_all(&state.pool)
         .await.
-        unwrap_or(vec![default_todo]);
+        unwrap_or(vec![DEFAULT_TODO]);
 
     Template::render("todo-edit-add", context! {
         title: "Todo List",
