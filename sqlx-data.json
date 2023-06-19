@@ -1,6 +1,40 @@
 {
   "db": "PostgreSQL",
-  "00c58ef3e0ff9a99842da3472cd9c20f0257c999ac89bd663ca3c0e9f95a6418": {
+  "0546c9f38b16d8948b4c573ec614f9ff6c28a50c0006ec773e4180d7dded17e7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "delete from TODOS where created < now() - interval '1.5' day and id not in (select id from todos order by id asc limit 10)"
+  },
+  "19b550df7db900654100e8734766d670fa28c5647fe8d28f0cd53acaa35acb50": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "note",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT id, note from todos order by id asc LIMIT 10"
+  },
+  "70156c416105b36bc11b7a3975b694b952039ca239520dd742d746043e0851a9": {
     "describe": {
       "columns": [
         {
@@ -25,33 +59,41 @@
         ]
       }
     },
-    "query": "update TODOS set note=($1) where id= ($2) returning *"
+    "query": "update TODOS set note=($1) where id= ($2) returning id, note"
   },
-  "0f0bfa60b0768749d1c5a0a3e7df2516c182ca47f21405e88a7edeea66c7cfc5": {
+  "bda945650fbc435d80278ad552a40b4193b3f449d0021f9900713e44fea1f101": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE from todos where id= ($1)"
+  },
+  "c99acdbb51b76e12dcbd59a54378ef7e3e4a299c490dbe451637621d3267c6fa": {
     "describe": {
       "columns": [
         {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
           "name": "note",
-          "ordinal": 1,
+          "ordinal": 0,
           "type_info": "Text"
         }
       ],
       "nullable": [
-        false,
         false
       ],
       "parameters": {
-        "Left": []
+        "Left": [
+          "Text"
+        ]
       }
     },
-    "query": "SELECT * from todos LIMIT 10"
+    "query": "INSERT INTO todos(note) VALUES ($1) RETURNING note"
   },
-  "2a460452ea2733565c1f6e442927f06e4c06692f722f8391f0763d2d53262c51": {
+  "dbe064d89203013a9ca9f8bfba181f2dcceb54795cf088c1180663f4632dd580": {
     "describe": {
       "columns": [
         {
@@ -75,26 +117,6 @@
         ]
       }
     },
-    "query": "SELECT * from todos where id= ($1)"
-  },
-  "c99acdbb51b76e12dcbd59a54378ef7e3e4a299c490dbe451637621d3267c6fa": {
-    "describe": {
-      "columns": [
-        {
-          "name": "note",
-          "ordinal": 0,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      }
-    },
-    "query": "INSERT INTO todos(note) VALUES ($1) RETURNING note"
+    "query": "SELECT id, note from todos where id= ($1)"
   }
 }
