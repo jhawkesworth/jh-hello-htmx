@@ -192,7 +192,8 @@ async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool,
     let rocket = rocket::custom(figment)
         .mount("/", routes![index,
             favicon,
-            get_todo_list, add_todo, edit_todo_form, update_todo, delete_todo])
+            get_todo_list, add_todo, edit_todo_form, update_todo, delete_todo
+        ])
         .mount("/static", FileServer::from(relative!("static")))
         .register("/", catchers![not_found])
         .attach(Template::fairing())

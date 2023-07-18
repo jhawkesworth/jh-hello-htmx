@@ -16,10 +16,10 @@ serde = "1.0.148"
 rustrict = "0.7.7"
 
 # below is all the shuttle stuff that replaces infrastructure.
-shuttle-rocket = "0.18.0"
-shuttle-runtime = "0.18.0"
-shuttle-static-folder = "0.18.0"
-shuttle-secrets = "0.18.0"
-shuttle-shared-db = { version = "0.18.0", features = ["postgres"]}
+shuttle-rocket = "0.21.0"
+shuttle-runtime = "0.21.0"
+shuttle-static-folder = "0.21.0"
+shuttle-secrets = "0.21.0"
+shuttle-shared-db = { version = "0.21.0", features = ["postgres"]}
 
 
