@@ -6,20 +6,20 @@ publish = false
 
 
 [dependencies]
-tokio = "1.26.0"
+tokio = "1.28.2"
 rocket = "0.5.0-rc.2"
 rocket_dyn_templates = { version = "0.1.0-rc.2", features = ["handlebars"] }
-sqlx = { version = "0.6.2", features = ["runtime-tokio-native-tls", "postgres", "offline"] }
+sqlx = { version = "0.7", features = ["runtime-tokio", "tls-native-tls", "postgres"] }
 # note to self may need serde 1.0.148 and rocket might need features = ["json"]
-serde = "1.0.148"
+serde = "1.0.164"
 # profanity filter
 rustrict = "0.7.7"
 
 # below is all the shuttle stuff that replaces infrastructure.
-shuttle-rocket = "0.21.0"
-shuttle-runtime = "0.21.0"
-shuttle-static-folder = "0.21.0"
-shuttle-secrets = "0.21.0"
-shuttle-shared-db = { version = "0.21.0", features = ["postgres"]}
+shuttle-rocket = "0.25.0"
+shuttle-runtime = "0.25.0"
+shuttle-static-folder = "0.25.0"
+shuttle-secrets = "0.25.0"
+shuttle-shared-db = { version = "0.25.0", features = ["postgres"]}
 
 

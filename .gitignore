@@ -9,3 +9,4 @@ Secrets.dev.toml
 
 #/target
 #/Cargo.lock
+/.sqlx

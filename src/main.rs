@@ -52,7 +52,7 @@ async fn get_todo_list(state: &State<MyState>) -> Template {
     // forget old things, but not the first 10 things.
     let mut transaction = state.pool.begin().await.unwrap();
     let _result = sqlx::query!("delete from TODOS where created < now() - interval '1.5' day and id not in (select id from todos order by id asc limit 10)")
-        .execute(&mut transaction)
+        .execute(&mut *transaction)
         .await;
     transaction.commit().await.unwrap();
 
