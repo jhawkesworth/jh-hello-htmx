@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "delete from TODOS where created < now() - interval '1.5' day and id not in (select id from todos order by id asc limit 10)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "0546c9f38b16d8948b4c573ec614f9ff6c28a50c0006ec773e4180d7dded17e7"
+}

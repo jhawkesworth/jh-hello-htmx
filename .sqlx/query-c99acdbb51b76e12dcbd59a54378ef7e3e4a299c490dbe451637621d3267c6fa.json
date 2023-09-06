@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO todos(note) VALUES ($1) RETURNING note",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "note",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c99acdbb51b76e12dcbd59a54378ef7e3e4a299c490dbe451637621d3267c6fa"
+}

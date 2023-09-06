@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "update TODOS set note=($1) where id= ($2) returning id, note",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "note",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "70156c416105b36bc11b7a3975b694b952039ca239520dd742d746043e0851a9"
+}
