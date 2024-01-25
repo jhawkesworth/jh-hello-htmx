@@ -172,7 +172,6 @@ pub fn not_found(req: &Request<'_>) -> Template {
 
 #[shuttle_runtime::main]
 async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool,
-                #[shuttle_static_folder::StaticFolder] static_folder: PathBuf,
                 #[shuttle_secrets::Secrets] secret_store: SecretStore) -> shuttle_rocket::ShuttleRocket {
 
     let db_url = if let Some(db_url) = secret_store.get("DATABASE_URL") {
@@ -187,7 +186,7 @@ async fn rocket(#[shuttle_shared_db::Postgres] pool: PgPool,
 
     let state = MyState { pool };
 
-    let template_dir = static_folder.to_str().unwrap();
+    let template_dir = PathBuf::from("static");
     let figment = rocket::Config::figment().merge(("template_dir", template_dir));
     let rocket = rocket::custom(figment)
         .mount("/", routes![index,
