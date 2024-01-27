@@ -6,15 +6,13 @@ publish = false
 
 
 [dependencies]
-tokio = "1.28.2"
+tokio = "1.35.1"
 rocket = "0.5.0"
-rocket_dyn_templates = { version = "0.1.0-rc.2", features = ["handlebars"] }
-#sqlx = { version = "0.7", features = ["runtime-tokio", "tls-native-tls", "postgres"] }
-sqlx = { version = "0.7.2", features = [ "runtime-tokio-rustls", "postgres", "uuid" ] }
-# note to self may need serde 1.0.148 and rocket might need features = ["json"]
-serde = "1.0.164"
-# profanity filter
-rustrict = "0.7.7"
+rocket_dyn_templates = { version = "0.1.0", features = ["handlebars"] }
+sqlx = { version = "0.7.3", features = [ "runtime-tokio-rustls", "postgres", "uuid" ] }
+serde = "1.0.196"
+# profanity filter.   Seems to need to be pinned to 0.7.12 because that is what shuttle wants.
+rustrict = "0.7.12"
 
 # below is all the shuttle stuff that replaces infrastructure.
 shuttle-rocket = "0.37.0"
