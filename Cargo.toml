@@ -15,10 +15,10 @@ serde = "1.0.196"
 rustrict = "0.7.12"
 
 # below is all the shuttle stuff that replaces infrastructure.
-shuttle-rocket = "0.39.0"
-shuttle-runtime = "0.39.0"
-shuttle-secrets = "0.39.0"
-shuttle-shared-db = { version = "0.39.0", features = ["postgres", "sqlx"]}
+shuttle-rocket = "0.41.0"
+shuttle-runtime = "0.41.0"
+shuttle-secrets = "0.41.0"
+shuttle-shared-db = { version = "0.41.0", features = ["postgres", "sqlx"]}
 
 [profile.release]
 # v This is now used by default, if not provided
